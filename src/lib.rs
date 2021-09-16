@@ -1,5 +1,6 @@
 pub const BORDER: u8 = 9;
 pub const EMPTY_SPACE: u8 = 0;
+pub const PIECE: u8 = 1;
 
 pub const FIELD_WIDTH: usize = 12;
 pub const FIELD_HEIGHT: usize = 18;
@@ -12,8 +13,8 @@ pub const tetromino: [[u8; 16]; 7] = [
     [0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0],
     [0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0],
-    [0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0],
+    [0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    [0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
 ];
 
 pub fn rotate(px: usize, py: usize, r: usize) -> usize {
@@ -31,9 +32,9 @@ pub fn show_field(field: &[u8]) {
         if i % FIELD_WIDTH == 0 {
             println!();
         }
-        match *value {
-            BORDER => print!("▒"),
-            EMPTY_SPACE => print!(" "),
+        match value {
+            &EMPTY_SPACE => print!("░"),
+            &BORDER => print!("▒"),
             _ => (),
         }
     }
@@ -46,8 +47,8 @@ pub fn show_tetromino(tetromino_number: usize) {
             println!();
         }
         match i {
-            0 => print!(" "),
-            1 => print!("▉"),
+            &EMPTY_SPACE => print!("░"),
+            &PIECE => print!("▉"),
             _ => (),
         }
     }
