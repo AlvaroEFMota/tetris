@@ -4,8 +4,8 @@ pub const PIECE: u8 = 1;
 
 pub const FIELD_WIDTH: usize = 12;
 pub const FIELD_HEIGHT: usize = 18;
-pub const SCREEN_WIDTH: usize = 12;
-pub const SCREEN_HEIGHT: usize = 12;
+pub const SCREEN_WIDTH: usize = 80;
+pub const SCREEN_HEIGHT: usize = 20;
 
 pub const tetromino: [[u8; 16]; 7] = [
     [0,0,1,0,
@@ -75,7 +75,8 @@ pub fn show_tetromino(tetromino_number: usize) {
         }
         match i {
             &EMPTY_SPACE => print!("░"),
-            &PIECE => print!("▉"),
+            &PIECE => print!("█"),
+            //&PIECE => print!("■"),
             _ => (),
         }
     }
@@ -95,4 +96,32 @@ pub fn create_field() -> [u8; FIELD_HEIGHT * FIELD_WIDTH] {
         }
     }
     field
+}
+
+pub fn create_screen() -> [u8; SCREEN_HEIGHT*SCREEN_WIDTH] {
+    let screen: [u8; SCREEN_HEIGHT*SCREEN_WIDTH] = [0; SCREEN_HEIGHT*SCREEN_WIDTH];
+    screen
+}
+
+pub fn show_screen(screen: &[u8]) {
+    for (index, value) in screen.iter().enumerate() {
+        if index % SCREEN_WIDTH == 0 {
+            println!();
+        }
+        match value {
+            &EMPTY_SPACE => print!("░"),
+            &BORDER => print!("▒"),
+            &PIECE => print!("█"),
+            _ => (),
+        }
+    }
+    println!();
+}
+
+pub fn draw_field_on_screen(field: &[u8], screen: &mut [u8]) {
+    for y in 0..FIELD_HEIGHT {
+        for x in 0..FIELD_WIDTH {
+            screen[SCREEN_WIDTH*(y+2)+x+2] = field[FIELD_WIDTH*y+x];
+        }
+    }
 }
