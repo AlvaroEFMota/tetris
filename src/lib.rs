@@ -106,7 +106,7 @@ pub fn create_screen() -> [u8; SCREEN_HEIGHT*SCREEN_WIDTH] {
 pub fn show_screen(screen: &[u8]) {
     for (index, value) in screen.iter().enumerate() {
         if index % SCREEN_WIDTH == 0 {
-            println!();
+            println!("\r");
         }
         match value {
             &EMPTY_SPACE => print!("░"),
@@ -115,7 +115,7 @@ pub fn show_screen(screen: &[u8]) {
             _ => (),
         }
     }
-    println!();
+    println!("\r");
 }
 
 pub fn draw_field_on_screen(field: &[u8], screen: &mut [u8]) {
