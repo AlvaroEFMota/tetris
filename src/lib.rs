@@ -125,3 +125,20 @@ pub fn draw_field_on_screen(field: &[u8], screen: &mut [u8]) {
         }
     }
 }
+
+pub fn does_piece_fix(pos_x: i32, pos_y: i32, field: &[u8], current_piece: usize, current_rotation: usize) -> bool{
+    for x in 0..4 {
+        for y in 0..4 {
+            let piece_idx = rotate(x, y, current_rotation);
+            let field_idx = (pos_y+y as i32 )*FIELD_WIDTH as i32 +pos_x+x as i32;
+
+            if pos_x < 0 || pos_y < 0 {
+                return false
+            }
+            if tetromino[current_piece][piece_idx as usize] == PIECE && field[field_idx as usize] == BORDER {
+                return false
+            }
+        }
+    }
+    true
+}

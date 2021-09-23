@@ -76,9 +76,9 @@ fn main() {
     
     // Game logic
     let mut current_piece = 1;
-    let mut current_rotation = 0;
-    let mut current_y = 0;
-    let mut current_x = FIELD_WIDTH / 2 - 1;
+    let mut current_rotation: usize = 0;
+    let mut current_y: usize = 0;
+    let mut current_x: usize = FIELD_WIDTH / 2 - 1;
     
     let mut speed = 20;
     let speed_counter = 0;
@@ -87,16 +87,32 @@ fn main() {
     // Game loop
     loop {
         // Game timing
-        //thread::sleep(Duration::from_millis(50));
+        thread::sleep(Duration::from_millis(50));
         
         // Game logic
         // --Input
         match receiver.try_recv() {
             Ok(movement) => match movement {
-                Movement::Up => println!("Moveu para cima\r"),
-                Movement::Down => println!("Moveu para baixo\r"),
-                Movement::Right => println!("Moveu para a direita\r"),
-                Movement::Left => println!("Moveu para a esquerda\r"),
+                Movement::Up => {
+                    if does_piece_fix(current_x as i32, current_y as i32, &field, current_piece, current_rotation+1) {
+                        current_rotation += 1;
+                    }
+                } 
+                Movement::Down => {
+                    if does_piece_fix(current_x as i32, current_y as i32 +1, &field, current_piece, current_rotation) {
+                        current_y += 1;
+                    }
+                }
+                Movement::Right => {
+                    if does_piece_fix(current_x as i32 +1, current_y as i32, &field, current_piece, current_rotation) {
+                        current_x += 1
+                    }
+                }
+                Movement::Left => {
+                    if does_piece_fix(current_x as i32 -1, current_y as i32, &field, current_piece, current_rotation) {
+                        current_x -= 1;
+                    }
+                }
                 _ => (),
             },
             Err(_) => (),
@@ -108,10 +124,14 @@ fn main() {
         //Draw the current piece
         for y in 0..4 {
             for x in 0..4 {
-                screen[(y + current_y + 2) * SCREEN_WIDTH + x + current_x + 2] =
-                    tetromino[current_piece][y * 4 + x];
+                if tetromino[current_piece][rotate(x, y, current_rotation)] != EMPTY_SPACE {
+                    screen[(y + current_y + 2) * SCREEN_WIDTH + x + current_x + 2] =
+                        tetromino[current_piece][rotate(x, y, current_rotation)];
+                }
             }
         }
+        print!("\x1B[2J\x1B[1;1H"); 
+        show_screen(&screen);
 
     }
     
