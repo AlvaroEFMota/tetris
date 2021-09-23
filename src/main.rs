@@ -161,12 +161,14 @@ fn main() {
                 for y in 0..4{
                     let mut line: bool = true;
                     for x in 1..FIELD_WIDTH-1 {
-                        line &= field[(y+current_y)*FIELD_WIDTH + current_x + x] != EMPTY_SPACE;
+                        line &= field[(y+current_y)*FIELD_WIDTH + x] != EMPTY_SPACE;
                     }
                     
-                    /*if line {
-                        for i in y..0
-                    }*/
+                    if line {
+                        for i in 1..FIELD_WIDTH-1 {
+                            field[(y+current_y)*FIELD_WIDTH+i] = BORDER;
+                        }
+                    }
                 }
 
                 current_piece = 2;
