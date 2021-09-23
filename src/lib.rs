@@ -109,7 +109,8 @@ pub fn show_screen(screen: &[u8]) {
             println!("\r");
         }
         match value {
-            &EMPTY_SPACE => print!("░"),
+            //&EMPTY_SPACE => print!("░"),
+            &EMPTY_SPACE => print!(" "),
             &BORDER => print!("▒"),
             &PIECE => print!("█"),
             _ => (),
@@ -135,7 +136,7 @@ pub fn does_piece_fix(pos_x: i32, pos_y: i32, field: &[u8], current_piece: usize
             if pos_x < 0 || pos_y < 0 {
                 return false
             }
-            if tetromino[current_piece][piece_idx as usize] == PIECE && field[field_idx as usize] == BORDER {
+            if tetromino[current_piece][piece_idx as usize] == PIECE && field[field_idx as usize] != EMPTY_SPACE {
                 return false
             }
         }

@@ -70,46 +70,67 @@ fn main() {
     show_tetromino(4);
     show_tetromino(5);
     show_tetromino(6);*/
-    
     let mut field = create_field();
     let mut screen = create_screen();
-    
     // Game logic
     let mut current_piece = 1;
     let mut current_rotation: usize = 0;
     let mut current_y: usize = 0;
     let mut current_x: usize = FIELD_WIDTH / 2 - 1;
-    
     let mut speed = 20;
-    let speed_counter = 0;
-    let force_down = false;
-    
+    let mut speed_counter = 0;
+    let mut force_down = false;
     // Game loop
     loop {
         // Game timing
         thread::sleep(Duration::from_millis(50));
-        
+        force_down = speed_counter == speed;
+        speed_counter += 1;
         // Game logic
         // --Input
         match receiver.try_recv() {
             Ok(movement) => match movement {
                 Movement::Up => {
-                    if does_piece_fix(current_x as i32, current_y as i32, &field, current_piece, current_rotation+1) {
+                    if does_piece_fix(
+                        current_x as i32,
+                        current_y as i32,
+                        &field,
+                        current_piece,
+                        current_rotation + 1,
+                    ) {
                         current_rotation += 1;
                     }
-                } 
+                }
                 Movement::Down => {
-                    if does_piece_fix(current_x as i32, current_y as i32 +1, &field, current_piece, current_rotation) {
+                    if does_piece_fix(
+                        current_x as i32,
+                        current_y as i32 + 1,
+                        &field,
+                        current_piece,
+                        current_rotation,
+                    ) {
                         current_y += 1;
                     }
                 }
                 Movement::Right => {
-                    if does_piece_fix(current_x as i32 +1, current_y as i32, &field, current_piece, current_rotation) {
+                    if does_piece_fix(
+                        current_x as i32 + 1,
+                        current_y as i32,
+                        &field,
+                        current_piece,
+                        current_rotation,
+                    ) {
                         current_x += 1
                     }
                 }
                 Movement::Left => {
-                    if does_piece_fix(current_x as i32 -1, current_y as i32, &field, current_piece, current_rotation) {
+                    if does_piece_fix(
+                        current_x as i32 - 1,
+                        current_y as i32,
+                        &field,
+                        current_piece,
+                        current_rotation,
+                    ) {
                         current_x -= 1;
                     }
                 }
@@ -118,9 +139,52 @@ fn main() {
             Err(_) => (),
         };
 
+        if force_down {
+            if does_piece_fix(current_x as i32, current_y as i32 + 1, &field, current_piece, current_rotation) {
+                current_y += 1;
+                force_down = false;
+                speed_counter = 0;
+            } else {
+
+                // lock the current piece in the field
+                for x in 0..4 {
+                    for y in 0..4 {
+                        let mut piece_idx = rotate(x, y, current_rotation);
+                        if tetromino[current_piece][piece_idx] == PIECE {
+                            field[(y + current_y) * FIELD_WIDTH + current_x + x] =
+                                tetromino[current_piece][piece_idx];
+                        }
+                    }
+                }
+
+                //check if we got any lines
+                for y in 0..4{
+                    let mut line: bool = true;
+                    for x in 1..FIELD_WIDTH-1 {
+                        line &= field[(y+current_y)*FIELD_WIDTH + current_x + x] != EMPTY_SPACE;
+                    }
+                    
+                    /*if line {
+                        for i in y..0
+                    }*/
+                }
+
+                current_piece = 2;
+                current_rotation = 0;
+                current_y = 0;
+                current_x = FIELD_WIDTH / 2 - 1;
+                speed_counter = 0;
+                force_down = false;
+
+                if !does_piece_fix(current_x as i32, current_y as i32, &field, current_piece, current_rotation) {
+                    
+                    std::process::abort();
+                }
+            }
+        }
+
         // Render output
         draw_field_on_screen(&field, &mut screen);
-        
         //Draw the current piece
         for y in 0..4 {
             for x in 0..4 {
@@ -130,12 +194,9 @@ fn main() {
                 }
             }
         }
-        print!("\x1B[2J\x1B[1;1H"); 
+        print!("\x1B[2J\x1B[1;1H");
         show_screen(&screen);
-
     }
-    
-
 
     //draw_field_on_screen(&field, &mut screen);
 
