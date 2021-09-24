@@ -5,6 +5,7 @@ use crossterm::terminal::enable_raw_mode;
 use std::sync::mpsc;
 use std::thread;
 use std::time::Duration;
+use rand::prelude::*;
 use tetris::*;
 
 enum Movement {
@@ -73,6 +74,7 @@ fn main() {
     let mut field = create_field();
     let mut screen = create_screen();
     // Game logic
+    let mut score: usize = 0;
     let mut current_piece = 1;
     let mut current_rotation: usize = 0;
     let mut current_y: usize = 0;
@@ -161,17 +163,22 @@ fn main() {
                 for y in 0..4{
                     let mut line: bool = true;
                     for x in 1..FIELD_WIDTH-1 {
-                        line &= field[(y+current_y)*FIELD_WIDTH + x] != EMPTY_SPACE;
+                        line &= field[(y+current_y)*FIELD_WIDTH + x] == PIECE;
                     }
                     
                     if line {
-                        for i in 1..FIELD_WIDTH-1 {
-                            field[(y+current_y)*FIELD_WIDTH+i] = BORDER;
+                        score += 1;
+                        for y1 in (1..y+current_y+1).rev() {
+                            for x1 in 1..FIELD_WIDTH-1 {
+                                field[y1*FIELD_WIDTH + x1] = field[(y1-1)*FIELD_WIDTH + x1];
+                            }
                         }
-                    }
+                    }                   
                 }
-
-                current_piece = 2;
+                let mut rng = thread_rng();
+                let random: usize = rng.gen();
+                current_piece = random%7;
+                
                 current_rotation = 0;
                 current_y = 0;
                 current_x = FIELD_WIDTH / 2 - 1;
@@ -196,28 +203,15 @@ fn main() {
                 }
             }
         }
+        let score_string = format!("score: {}", score);
+        let score_string = score_string.as_bytes();
+
+        for i in 0..score_string.len() {
+            screen[2*SCREEN_WIDTH + 15 + i] = score_string[i];
+        }
+
         print!("\x1B[2J\x1B[1;1H");
         show_screen(&screen);
     }
-
-    //draw_field_on_screen(&field, &mut screen);
-
-    // Draw tetromino piece on the screen
-    /*for y in 0..4 {
-        for x in 0..4 {
-            screen[(y + current_y + 2) * SCREEN_WIDTH + x + current_x + 2] =
-                tetromino[current_piece][y * 4 + x];
-        }
-    }
-
-    for y in 0..4 {
-        for x in 0..4 {
-            screen[(y + 2) * SCREEN_WIDTH + x + 18] =
-                tetromino[current_piece][y * 4 + x];
-        }
-    }
-
-    show_field(&field);
-    show_screen(&screen);*/
     handle.join().unwrap();
 }

@@ -113,7 +113,7 @@ pub fn show_screen(screen: &[u8]) {
             &EMPTY_SPACE => print!(" "),
             &BORDER => print!("▒"),
             &PIECE => print!("█"),
-            _ => (),
+            &i => print!("{}",i as char),
         }
     }
     println!("\r");
